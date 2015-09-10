@@ -6,12 +6,6 @@
 //  Copyright (c) 2012. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-
-/**
-	A utility class that provides configuration values from a .plist based on build configuration.
-    @discussion Consider subclassing and implementing as a singleton.
- */
 @interface MYEnvironmentConfig : NSObject
 
 
@@ -22,17 +16,19 @@
  If not otherwise specified using initSharedConfigWithPList, looks for a file named "Environments.plist" in the main bundle.
  @returns An initialized static shared instance.
  */
-+ (MYEnvironmentConfig*) sharedConfig;
++ (MYEnvironmentConfig *)sharedConfig;
 
 /**
  Sets the shared instance.
  */
-+ (void) setSharedConfig:(MYEnvironmentConfig*)sharedConfig;
++ (void)setSharedConfig:(MYEnvironmentConfig *)sharedConfig;
 
 /**
  Iniitilizes the shared instance with the environmentPList file and default values.
  */
-+ (void) initSharedConfigWithPList:(NSString*)environmentPList usingMainBundle:(BOOL) useMainBundle;
++ (void)initSharedConfigWithPList:(NSString *)environmentPList;
+
++ (void)initSharedConfigFromDocumentPList:(NSString *)environmentPList;
 
 /**
 	Initializes the instance with property values.
@@ -42,23 +38,20 @@
 	@param resourceBundle The resource bundle containing the environmentPList. Passing nil will use the default value of [NSBundle mainBundle].
 	@returns An initialized instance.
  */
-- (id)initWithPList:(NSString*)environmentPList environmentKey:(NSString*)infoPListEnvironmentKey defaultConfigKey:(NSString*)defaultConfigurationKey resourceBundle:(NSBundle*)resourceBundle
-;
+- (id)initWithPList:(NSString *)environmentPList environmentKey:(NSString *)infoPListEnvironmentKey defaultConfigKey:(NSString  *)defaultConfigurationKey resourceBundle:(NSBundle *)resourceBundle;
 
 /**
 	Initializes the instance with property values.
 	@param environmentPList The PList filename to load build configuration specific values from. A value must be supplied for this parameter.
 	@returns An initialized instance.
  */
-- (id)initWithPList:(NSString*)environmentPList
-;
+- (id)initWithPList:(NSString *)environmentPList;
 
 /**
 	Retrieves a confuration value from the configValues dictionary, based on the current build configuration of course.
 	@param key The key from the environmentPList to
 	@returns The value associated with the current build configuration.
  */
-- (id) configValueForKey:(NSString*)key
-;
+- (id)configValueForKey:(NSString *)key;
 
 @end

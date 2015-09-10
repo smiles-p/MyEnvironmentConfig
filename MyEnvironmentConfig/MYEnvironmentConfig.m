@@ -6,15 +6,13 @@
 //  Copyright (c) 2012. All rights reserved.
 //
 
-#import "MYEnvironmentConfig.h"
-#import "NSDictionary+MYEnvironmentConfigAdditions.h"
-
 @interface MYEnvironmentConfig ()
 
 @property (nonatomic,strong) NSBundle *resourceBundle;
 @property (nonatomic,strong) NSString *infoPListEnvironmentKey;
 @property (nonatomic,strong) NSString *environmentPList;
 @property (nonatomic,strong) NSString *defaultConfigurationKey;
+@property (nonatomic,strong) NSString *folderPath;
 
 @end
 
@@ -22,7 +20,7 @@
 
 static MYEnvironmentConfig *_sharedConfig;
 
-+ (MYEnvironmentConfig*) sharedConfig
++ (MYEnvironmentConfig *)sharedConfig
 {
     if (!_sharedConfig) {
         _sharedConfig = [MYEnvironmentConfig new];
@@ -30,18 +28,26 @@ static MYEnvironmentConfig *_sharedConfig;
     return _sharedConfig;
 }
 
-+ (void) setSharedConfig:(MYEnvironmentConfig*)sharedConfig
++ (void)setSharedConfig:(MYEnvironmentConfig *)sharedConfig
 {
     _sharedConfig = sharedConfig;
 }
 
-+ (void) initSharedConfigWithPList:(NSString*)environmentPList usingMainBundle:(BOOL) useMainBundle
++ (void)initSharedConfigWithPList:(NSString *)environmentPList
 {
     MYEnvironmentConfig *config = [[MYEnvironmentConfig alloc] initWithPList:environmentPList];
     [self setSharedConfig:config];
 }
 
-- (id)initWithPList:(NSString*)environmentPList environmentKey:(NSString*)infoPListEnvironmentKey defaultConfigKey:(NSString*)defaultConfigurationKey resourceBundle:(NSBundle*)resourceBundle
++ (void)initSharedConfigFromDocumentPList:(NSString *)environmentPList
+{
+    NSString *rootPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    
+    MYEnvironmentConfig *config = [[MYEnvironmentConfig alloc] initWithPList:environmentPList environmentKey:nil defaultConfigKey:nil resourceBundle:nil underFolder:rootPath];
+    [self setSharedConfig:config];
+}
+
+- (id)initWithPList:(NSString *)environmentPList environmentKey:(NSString *)infoPListEnvironmentKey defaultConfigKey:(NSString *)defaultConfigurationKey resourceBundle:(NSBundle *)resourceBundle underFolder:(NSString *)folderPath
 {
     self = [super init];
     
@@ -50,15 +56,16 @@ static MYEnvironmentConfig *_sharedConfig;
         _infoPListEnvironmentKey = infoPListEnvironmentKey;
         _defaultConfigurationKey = defaultConfigurationKey;
         _environmentPList = environmentPList;
+        _folderPath = folderPath;
         [self loadEnvironmentConfig];
     }
     
     return self;
 }
 
-- (id)initWithPList:(NSString*)environmentPList
+- (id)initWithPList:(NSString *)environmentPList
 {
-    self = [self initWithPList:environmentPList environmentKey:nil defaultConfigKey:nil resourceBundle:nil];
+    self = [self initWithPList:environmentPList environmentKey:nil defaultConfigKey:nil resourceBundle:nil underFolder:nil];
     
     if (self) {
         
@@ -69,7 +76,7 @@ static MYEnvironmentConfig *_sharedConfig;
 
 - (id)init
 {
-    self = [self initWithPList:@"Environments.plist" environmentKey:nil defaultConfigKey:nil resourceBundle:nil];
+    self = [self initWithPList:@"Environments.plist" environmentKey:nil defaultConfigKey:nil resourceBundle:nil underFolder:nil];
     
     if (self) {
         
@@ -87,7 +94,6 @@ static MYEnvironmentConfig *_sharedConfig;
         self.resourceBundle = [NSBundle mainBundle];
     }
     
-    
     if (!self.defaultConfigurationKey) {
         self.defaultConfigurationKey = @"Defaults";
     }
@@ -96,24 +102,28 @@ static MYEnvironmentConfig *_sharedConfig;
         self.infoPListEnvironmentKey = @"Environment";
     }
     
-    NSString* configurationDict = [[self.resourceBundle infoDictionary] objectForKey:self.infoPListEnvironmentKey];
-    NSBundle* bundle = self.resourceBundle;
-    NSString* envsPListPath = [bundle pathForResource:self.environmentPList ofType:nil];
-    NSDictionary* environments = [[NSDictionary alloc] initWithContentsOfFile:envsPListPath];
-    NSDictionary* environment = [environments objectForKey:configurationDict];
+    NSString *envsPListPath = [self.resourceBundle pathForResource:self.environmentPList ofType:nil];
     
-    // Let's coimbine values with the default config
+    if (self.folderPath) {
+        envsPListPath = [self.folderPath stringByAppendingPathComponent:self.environmentPList];
+    }
+    
+    NSString *configuration = [[self.resourceBundle infoDictionary] objectForKey:self.infoPListEnvironmentKey];
+    
+    NSDictionary *environments = [[NSDictionary alloc] initWithContentsOfFile:envsPListPath];
+    NSDictionary *environment = [environments objectForKey:configuration];
+    
     NSDictionary *defaultValues = [environments valueForKeyPath:self.defaultConfigurationKey];
-    
+    // Let's coimbine values with the default config
     NSDictionary *combinedValues = [defaultValues MY_dictionaryByMergingWith:environment];
     
     _configValues = combinedValues;
-
+    
 }
 
 #pragma mark - Helper Methods -
 
-- (id) configValueForKey:(NSString*)key
+- (id)configValueForKey:(NSString *)key
 {
     id value = [self.configValues valueForKey:key];
     
@@ -124,7 +134,7 @@ static MYEnvironmentConfig *_sharedConfig;
         DDLogError(@"%@",errorMessage);
 #endif
     }
-
+    
     return value;
 }
 
