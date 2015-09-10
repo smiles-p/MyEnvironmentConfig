@@ -35,7 +35,7 @@ static MYEnvironmentConfig *_sharedConfig;
     _sharedConfig = sharedConfig;
 }
 
-+ (void) initSharedConfigWithPList:(NSString*)environmentPList
++ (void) initSharedConfigWithPList:(NSString*)environmentPList usingMainBundle:(BOOL) useMainBundle
 {
     MYEnvironmentConfig *config = [[MYEnvironmentConfig alloc] initWithPList:environmentPList];
     [self setSharedConfig:config];
@@ -86,6 +86,7 @@ static MYEnvironmentConfig *_sharedConfig;
     if (!self.resourceBundle) {
         self.resourceBundle = [NSBundle mainBundle];
     }
+    
     
     if (!self.defaultConfigurationKey) {
         self.defaultConfigurationKey = @"Defaults";

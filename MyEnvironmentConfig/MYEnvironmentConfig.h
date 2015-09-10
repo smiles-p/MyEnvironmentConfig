@@ -32,7 +32,7 @@
 /**
  Iniitilizes the shared instance with the environmentPList file and default values.
  */
-+ (void) initSharedConfigWithPList:(NSString*)environmentPList;
++ (void) initSharedConfigWithPList:(NSString*)environmentPList usingMainBundle:(BOOL) useMainBundle;
 
 /**
 	Initializes the instance with property values.
