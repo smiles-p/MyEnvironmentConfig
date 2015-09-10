@@ -6,6 +6,12 @@
 //  Copyright (c) 2012. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
+/**
+	A utility class that provides configuration values from a .plist based on build configuration.
+ @discussion Consider subclassing and implementing as a singleton.
+ */
 @interface MYEnvironmentConfig : NSObject
 
 
@@ -38,7 +44,7 @@
 	@param resourceBundle The resource bundle containing the environmentPList. Passing nil will use the default value of [NSBundle mainBundle].
 	@returns An initialized instance.
  */
-- (id)initWithPList:(NSString *)environmentPList environmentKey:(NSString *)infoPListEnvironmentKey defaultConfigKey:(NSString  *)defaultConfigurationKey resourceBundle:(NSBundle *)resourceBundle;
+- (id)initWithPList:(NSString *)environmentPList environmentKey:(NSString *)infoPListEnvironmentKey defaultConfigKey:(NSString  *)defaultConfigurationKey resourceBundle:(NSBundle *)resourceBundle underFolder:(NSString *)folderPath;
 
 /**
 	Initializes the instance with property values.

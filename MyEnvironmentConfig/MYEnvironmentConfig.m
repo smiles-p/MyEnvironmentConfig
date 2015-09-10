@@ -6,6 +6,9 @@
 //  Copyright (c) 2012. All rights reserved.
 //
 
+#import "MYEnvironmentConfig.h"
+#import "NSDictionary+MYEnvironmentConfigAdditions.h"
+
 @interface MYEnvironmentConfig ()
 
 @property (nonatomic,strong) NSBundle *resourceBundle;
